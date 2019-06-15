@@ -4,15 +4,21 @@ import (
 	"io"
 	"log"
 	"os"
-
-	"./USB"
-	"./frames"
-	"./transmission"
+	"bytes"
+	_"bufio"
+    _"encoding/base64"
+	_ "fmt"
+	"github.com/nfnt/resize"
+	"image/jpeg"
+    _"io/ioutil"
+	"go-usbmuxd/USB"
+	"go-usbmuxd/frames"
+	"go-usbmuxd/transmission"
 )
 
 // some global vars
 var connectHandle USB.ConnectedDevices
-var port = 29173
+var port = 4986
 var pluggedUSBDevices map[int]frames.USBDeviceAttachedDetachedFrame
 var connectedUSB int // only stores the device id
 var scanningInstance USB.Scan
@@ -87,6 +93,47 @@ func (usb USBDeviceDelegate) USBDeviceDidSuccessfullyConnect(device USB.Connecte
 	// successfully connected to the port mentioned
 	// stop the scan
 	connectedUSB = deviceID
+	
+
+	f, _ := os.Open("plop/NKG_6469.JPG") // For read access.
+	// decode jpeg into image.Image
+	img, err := jpeg.Decode(f)
+	if err != nil {
+		log.Fatal(err)
+	}
+	f.Close()
+
+	m := resize.Resize(1400, 0, img, resize.Lanczos3)
+
+	buf := new(bytes.Buffer)
+	_ = jpeg.Encode(buf, m, nil)
+	send_s3 := buf.Bytes()
+
+	//reader := bufio.NewReader(f)
+    //content, _ := ioutil.ReadAll(reader)
+
+    // Encode as base64.
+	//encoded := base64.StdEncoding.EncodeToString(content)
+	
+	/*file, err := os.Open("icon.png") // For read access.
+	if err != nil {
+		log.Fatal(err)
+	}
+	data := make([]byte, 100)
+	count, err := file.Read(data)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("read %d bytes: %q\n", count, data[:count])*/
+
+    // Print encoded data to console.
+    // ... The base64 image can be used as a data URI in a browser.
+    //fmt.Println("ENCODED: " + encoded)
+	//fmt.Printf("read %d bytes: %q\n", count, data[:count])
+	//b := []byte(encoded)
+	//data := make([]byte, 20)
+
+	device.SendData(send_s3[0:], 101)
 	scanningInstance.Stop()
 }
 

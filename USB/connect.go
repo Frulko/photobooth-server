@@ -8,7 +8,7 @@ import (
 	"log"
 	"net"
 
-	"../frames"
+	"go-usbmuxd/frames"
 	"howett.net/plist"
 )
 
@@ -44,7 +44,7 @@ func (device ConnectedDevices) SendData(data []byte, messageTagType uint32) {
 	binary.BigEndian.PutUint32(headerBuffer[:4], 1)
 	binary.BigEndian.PutUint32(headerBuffer[4:8], messageTagType)
 	binary.BigEndian.PutUint32(headerBuffer[8:12], 0)
-	binary.BigEndian.PutUint32(headerBuffer[12:16], uint32(len(data)+4))
+	binary.BigEndian.PutUint32(headerBuffer[12:16], uint32(len(data) + 4))
 	binary.BigEndian.PutUint32(headerBuffer[16:], uint32(len(data)))
 
 	if device.Connection != nil {
