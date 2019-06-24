@@ -2,22 +2,21 @@ package main
 
 import (
 	"bufio"
-	"bytes"
+	_"bytes"
 	"fmt"
 	_ "fmt"
 	"go-usbmuxd/USB"
 	"go-usbmuxd/frames"
 	"go-usbmuxd/transmission"
-	"image/jpeg"
+	"go-usbmuxd/photobooth"
+	_"image/jpeg"
 	_ "image/jpeg"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
-
-	"github.com/micahwedemeyer/gphoto2go"
-	"github.com/nfnt/resize"
-	_ "github.com/nfnt/resize"
+	_"github.com/micahwedemeyer/gphoto2go"
+	_"github.com/nfnt/resize"
 )
 
 // some global vars
@@ -27,8 +26,13 @@ var pluggedUSBDevices map[int]frames.USBDeviceAttachedDetachedFrame
 var connectedUSB int // only stores the device id
 var scanningInstance USB.Scan
 var self USBDeviceDelegate
+var cameraInstance PhotoBooth.Camera
+
 
 func main() {
+	
+
+	
 
 	// inti section
 	connectedUSB = -1
@@ -70,6 +74,8 @@ func (usb USBDeviceDelegate) USBDeviceDidPlug(frame frames.USBDeviceAttachedDeta
 	log.Printf("[USB-INFO] : Device Plugged %s ID: %d\n", frame.Properties.SerialNumber, frame.DeviceID)
 	pluggedUSBDevices[frame.DeviceID] = frame
 	scanningInstance.Start(&connectHandle, frame, port)
+
+	cameraInstance.Init();
 }
 
 // USBDeviceDidUnPlug - device unplugged callback
@@ -79,6 +85,8 @@ func (usb USBDeviceDelegate) USBDeviceDidUnPlug(frame frames.USBDeviceAttachedDe
 	log.Printf("[USB-INFO] : Device UnPlugged %s ID: %d\n", pluggedUSBDevices[frame.DeviceID].Properties.SerialNumber, frame.DeviceID)
 	delete(pluggedUSBDevices, frame.DeviceID)
 	scanningInstance.Stop()
+
+	cameraInstance.Close();
 }
 
 // USBDidReceiveErrorWhilePluggingOrUnplugging - device plugging/unplugging callback
@@ -162,11 +170,14 @@ func (usb USBDeviceDelegate) USBDeviceDidReceiveData(device USB.ConnectedDevices
 	case "/photo/capture":
 
 		fmt.Println("Trigger Capture and Send")
+		picture := cameraInstance.TakePicture();
+		device.SendData(picture[0:], 101)
+		//cameraInstance.TakePicture();
 
-		camera := new(gphoto2go.Camera)
-		camera.Init()
-		file, _ := camera.TriggerCaptureToFile()
-		cameraFileReader := camera.FileReader(file.Folder, file.Name)
+		// camera := new(gphoto2go.Camera)
+		// camera.Init()
+		// file, _ := camera.TriggerCaptureToFile()
+		/*cameraFileReader := camera.FileReader(file.Folder, file.Name)
 
 		img, _ := jpeg.Decode(cameraFileReader)
 
@@ -178,7 +189,7 @@ func (usb USBDeviceDelegate) USBDeviceDidReceiveData(device USB.ConnectedDevices
 		cameraFileReader.Close()
 		camera.Exit()
 
-		device.SendData(send_s3[0:], 101)
+		device.SendData(send_s3[0:], 101)*/
 
 	case "/photo/print":
 		fmt.Println("Print the photo")
@@ -191,7 +202,7 @@ func (usb USBDeviceDelegate) USBDeviceDidReceiveData(device USB.ConnectedDevices
 	default:
 		fmt.Println("Unknown command")
 		fmt.Println("Cancel Photo and restart")
-		f, _ := os.Open("IMG_6954.JPG")
+		f, _ := os.Open("IMG_6956.JPG_resized.jpg")
 		reader := bufio.NewReader(f)
 		content, _ := ioutil.ReadAll(reader)
 		device.SendData(content[0:], 101)
