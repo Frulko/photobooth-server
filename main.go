@@ -32,7 +32,7 @@ var cameraInstance PhotoBooth.Camera
 func main() {
 	
 
-	
+	log.Println("[Peertalk] : Start")
 
 	// inti section
 	connectedUSB = -1
@@ -169,8 +169,10 @@ func (usb USBDeviceDelegate) USBDeviceDidReceiveData(device USB.ConnectedDevices
 	switch command {
 	case "/photo/capture":
 
-		fmt.Println("Trigger Capture and Send")
+		log.Println("Trigger Capture and Send")
 		picture := cameraInstance.TakePicture();
+
+		log.Println("Send")
 		device.SendData(picture[0:], 101)
 		//cameraInstance.TakePicture();
 

@@ -16,13 +16,17 @@ type (
 
 var camera *gphoto2go.Camera
 var imageInstance Image
+var senderInstance Sender
 
 func (c *Camera) Init() {
+	imageInstance.Init()
+	senderInstance.Init()
+
 	camera = new(gphoto2go.Camera)
 	err := camera.Init()
 
 	if err != 0 {
-		log.Fatal("CAMERA Cannot Init")
+		log.Println("CAMERA Cannot Init")
 		return
 	}
 
@@ -30,23 +34,36 @@ func (c *Camera) Init() {
 }
 
 func (c *Camera) Close() {
-	if (c.IsConnected)  {
-		log.Fatal("CAMERA Cannot TakePicture")
+	/*if (c.IsConnected)  {
+		log.Fatal("CAMERA Cannot Close")
+		c.Init()
 		return
-	}
+	}*/
 
 	camera.Exit()
 }
 
-func (c *Camera) TakePicture() (resizedImage []byte) {
+func (c *Camera) ReConnect() {
+	c.Close()
+	c.Init()
+}
+
+func (c *Camera) TakePicture() (resizedImage []byte, hasError bool) {
+	hasError = false
 	if (!c.IsConnected)  {
-		log.Fatal("CAMERA Not Ready")
+		log.Println("CAMERA Not Ready")
+		c.ReConnect()
+		hasError = true
+		return
 	}
 
 	
 	file, err := camera.TriggerCaptureToFile()
 	if err != 0 {
-		log.Fatal("CAMERA Cannot TakePicture")
+		log.Println("CAMERA Cannot TakePicture")
+		//c.ReConnect()
+		hasError = true
+		return
 	} 
 
 	log.Println(file)
@@ -65,8 +82,25 @@ func (c *Camera) TakePicture() (resizedImage []byte) {
 	_ = jpeg.Encode(buf, m, nil)
 	send_s3 := buf.Bytes()
 	cameraFileReader.Close()*/
-
+	//return buf.Bytes();
 	resizedImage = imageInstance.Prepare(buf.Bytes())
 	cameraFileReader.Close()
 	return
+}
+
+func (c *Camera) GeneratePrintable() ([]byte){
+	log.Println("Camera.GeneratePrintable")
+	return imageInstance.GeneratePrintable()
+}
+
+func (c *Camera) Print() {
+	imageInstance.Print()
+}
+
+func (c *Camera) Send(mail string) (int) {
+	return senderInstance.Upload(imageInstance.printableImage, mail)
+}
+
+func (c *Camera) Reset() {
+	imageInstance.Reset()
 }
