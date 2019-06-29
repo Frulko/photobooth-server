@@ -23,7 +23,10 @@ type (
 
 func (i *Image) Init() {
 	log.Println("init gabarit")
-	filebg, _ := os.Open("./gabarit.jpg")
+	filebg, err := os.Open("/home/pi/go/src/go-usbmuxd/gabarit.jpg")
+	if (err != nil) {
+		log.Println(err)
+	}
 	loaded_image, _, _ := image.Decode(filebg)
 	i.backgroundImage = loaded_image
 }
@@ -45,7 +48,8 @@ func (i *Image) Prepare(blob []byte) ([]byte){
 
 	err = mw.ReadImageBlob(blob)
 	if err != nil {
-		panic(err)
+		log.Println("prepare ReadImageBlob")
+		log.Println(err)
 	}
 
 	// Get original logo size
@@ -68,14 +72,16 @@ func (i *Image) Prepare(blob []byte) ([]byte){
 	// The blur factor is a float, where > 1 is blurry, < 1 is sharp
 	err = mw.ResizeImage(hWidth, hHeight, imagick.FILTER_LANCZOS, 1)
 	if err != nil {
-		panic(err)
+		log.Println("prepare.ResizeImage")
+		log.Println(err)
 	}
 	
 
 	// Set the compression quality to 95 (high quality = low compression)
 	err = mw.SetImageCompressionQuality(70)
 	if err != nil {
-		panic(err)
+		log.Println("prepare.SetImageCompressionQuality")
+		log.Println(err)
 	}
 
 	return mw.GetImagesBlob()
@@ -94,7 +100,8 @@ func (i *Image) GeneratePrintable() ([]byte){
 
 	err = mw.ReadImageBlob(i.imageBytes)
 	if err != nil {
-		panic(err)
+		log.Println("generate.ReadImageBlob")
+		log.Println(err)
 	}
 
 	hWidth := uint(2889)
@@ -108,18 +115,21 @@ func (i *Image) GeneratePrintable() ([]byte){
 	// The blur factor is a float, where > 1 is blurry, < 1 is sharp
 	err = mw.ResizeImage(hWidth, hHeight, imagick.FILTER_LANCZOS, 1)
 	if err != nil {
-		panic(err)
+		log.Println("ResizeImage")
+		log.Println(err)
 	}
 
 	err = mw.RotateImage(target, 90.0)
 	if err != nil {
-		panic(err)
+		log.Println("RotateImage")
+		log.Println(err)
 	}
 
 	// Set the compression quality to 95 (high quality = low compression)2889 * 800 
 	err = mw.SetImageCompressionQuality(95)
 	if err != nil {
-		panic(err)
+		log.Println("SetImageCompressionQuality")
+		log.Println(err)
 	}
 
 
@@ -152,7 +162,7 @@ func (i *Image) Print() {
 
 	log.Println(currentCount, "< - OLD && NEW - >", newCount)
 
-	i.SetCounter(strconv.Itoa(newCount))
+	i.SetCounter(strconv.Itoa(currentCount))
 
 	imagick.Initialize()
 
@@ -163,25 +173,25 @@ func (i *Image) Print() {
 
 	err = mw.ReadImageBlob(i.printableImage)
 	if err != nil {
-		panic(err)
+		log.Println("print.ReadImageBlob")
+		log.Println(err)
 	}
 	
 	mw.WriteImage("generate.jpg")
 	log.Println("Print IS OK")
-	/*output, err := exec.Command("lpr", "-P", "Dai_Nippon_Printing_DS-RX1", "generate.jpg").CombinedOutput()
+	output, err := exec.Command("lpr", "-P", "Dai_Nippon_Printing_DS-RX1", "generate.jpg").CombinedOutput()
 	if err != nil {
-	os.Stderr.WriteString(err.Error())
+		log.Println(err)
 	}
-	fmt.Println(string(output))*/
+	log.Println(string(output))
 }
 
 func (i *Image) GetCounter() (int){
-	log.Println("Counter")
 
-	output, err := exec.Command("sudo", "./dnpds40", "-n").CombinedOutput()
+	output, err := exec.Command("/home/pi/go/src/go-usbmuxd/dnpds40", "-n").CombinedOutput()
 	if err != nil {
-		log.Println("error")
-		return 0
+		log.Println("error", err)
+		return 1000
 	}
 
 	m := strings.Split(string(output), "\n")
@@ -192,14 +202,24 @@ func (i *Image) GetCounter() (int){
 		intVal, _ := strconv.Atoi(val)
 		return intVal
 	} else {
-		return 0
+		return 1000
 	}
+}	
+func (i *Image) GetTemp() (string){
+
+	output, err := exec.Command("/opt/vc/bin/vcgencmd", "measure_temp").CombinedOutput()
+	if err != nil {
+		log.Println("error", err)
+		return ""
+	}
+
+	return string(output)
 }	
 
 func (i *Image) SetCounter(number string){
 	log.Println("SetCounter", number)
 
-	exec.Command("sudo", "./dnpds40", "-p", number).CombinedOutput()
+	exec.Command("/home/pi/go/src/go-usbmuxd/dnpds40", "-p", number).CombinedOutput()
 }	
 
 
@@ -208,3 +228,4 @@ func (i *Image) Reset() {
 	i.printableImage = make([]byte, 0)
 	log.Println("Reset", len(i.imageBytes))
 }
+

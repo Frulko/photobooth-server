@@ -122,7 +122,7 @@ func (ws *WebSocket) OnMessage(command string, socket *websocket.Conn) {
 			count := imageInstance.GetCounter()
 
 			log.Println("-- Can print", count)
-			if (count >= 10) {
+			if (count >= 700) {
 				ws.sendMessage("photo:canPrint:0", socket)
 			} else {
 				ws.sendMessage("photo:canPrint:1", socket)

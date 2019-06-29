@@ -30,6 +30,9 @@ func (c *Camera) Init() {
 		return
 	}
 
+	cameraInstance.GetConfig("captureTarget", "1")
+	cameraInstance.SetConfig("captureTarget", "1")
+
 	c.IsConnected = true
 }
 
@@ -103,4 +106,16 @@ func (c *Camera) Send(mail string) (int) {
 
 func (c *Camera) Reset() {
 	imageInstance.Reset()
+}
+
+func (c *Camera) GetConfig(key string, value string) {
+	conf, err := camera.GetConfig("capturetarget", value)
+	log.Println("confi", conf)
+	log.Println("err", err)
+}
+
+func (c *Camera) SetConfig(key string, value string) {
+	err := camera.SetConfig("capturetarget", value)
+	//log.Println("confi", conf)
+	log.Println("SetConfind", key, value, err)
 }
