@@ -1,0 +1,22 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          scriptname
+# Required-Start:    $all
+# Required-Stop:     
+# Default-Start:     3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Photomaton Startup
+# Description:       Photomaton Startup script.
+### END INIT INFO
+
+case "$1" in
+start)
+        # Launch VIDEO:
+        echo "Photomaton..."
+        #/bin/bash /home/pi/starter-photomaton.sh &>/dev/null &
+	echo "End launch"
+;;
+*)
+exit 0
+esac
