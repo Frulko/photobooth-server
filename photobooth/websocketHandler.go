@@ -24,6 +24,10 @@ func (ws *WebSocket) Init() {
 	ws.email = ""
 }
 
+func (ws *WebSocket) ReConnect() {
+	cameraInstance.ReConnect();
+}
+
 
 func (ws *WebSocket) OnConnection(socket *websocket.Conn) {
 	log.Println("New OnConnection:")

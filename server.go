@@ -59,6 +59,13 @@ func home(w http.ResponseWriter, r *http.Request) {
 	homeTemplate.Execute(w, data)
 }
 
+func reset(w http.ResponseWriter, r *http.Request) {
+    wsInstance.ReConnect();
+    log.Println("Reset")
+
+    w.Write([]byte("Reset"))
+}
+
 func main() {
 
     log.Println("Websocket server started")
@@ -66,6 +73,7 @@ func main() {
 	flag.Parse()
 	log.SetFlags(0)
 	http.HandleFunc("/echo", echo)
+	http.HandleFunc("/reset", reset)
 	http.HandleFunc("/", home)
 	log.Fatal(http.ListenAndServe(*addr, nil))
 }
