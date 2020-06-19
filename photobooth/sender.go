@@ -55,7 +55,7 @@ func (s *Sender) Upload(pictureData []byte, mail string) (int) {
 // Creates a new file upload http request with optional extra params
 func (s *Sender) newfileUploadRequest(params map[string]string, paramName string, binary []byte) (*http.Request, error) {
 
-	path := formattedTimestamp() + "_aujourdhui_pour_demain_lafibala.jpg"
+	path := formattedTimestamp() + "_dirty_dancing.jpg"
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)

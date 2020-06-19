@@ -7,8 +7,8 @@ import (
 	"os"
 	"bufio"
 	"io/ioutil"
-	"os/exec"
-	"fmt"
+	// "os/exec"
+	// "fmt"
 )
 
 var imageInstance PhotoBooth.Image
