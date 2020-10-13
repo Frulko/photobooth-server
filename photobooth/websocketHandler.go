@@ -2,6 +2,7 @@ package PhotoBooth
 
 import (
 	"log"
+	"encoding/base64"
 	"github.com/gorilla/websocket"
 )
 
@@ -95,11 +96,13 @@ func (ws *WebSocket) OnMessage(command string, socket *websocket.Conn) {
 			//picture := cameraInstance.GeneratePrintable()
 
 			log.Println("-- Send")
-			err := socket.WriteMessage(2, picture)
-			if err != nil {
-				log.Println("write:", err)
-				return
-			}
+			encoded := base64.StdEncoding.EncodeToString([]byte(picture))
+			ws.sendMessage(encoded, socket)
+			// err := socket.WriteMessage(2, picture)
+			// if err != nil {
+			// 	log.Println("write:", err)
+			// 	return
+			// }
 
 			//cameraInstance.TakePicture();
 			//device.SendData(picture[0:], 101)
