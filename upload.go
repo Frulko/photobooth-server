@@ -17,7 +17,7 @@ var senderInstance PhotoBooth.Sender
 func main() {
 	log.Println("Upload")
 
-	f, _ := os.Open("_MG_7084.JPG")
+	f, _ := os.Open("here/IMG_8323.JPG")
 	reader := bufio.NewReader(f)
 	sample, _ := ioutil.ReadAll(reader)
 	log.Println("Init")
@@ -28,7 +28,8 @@ func main() {
 	n := imageInstance.GeneratePrintable()
 	log.Println("Post Gen")
 
-	senderInstance.Upload(n, "gdumoulin@me.com")
+	imageInstance.Print()
+	senderInstance.Upload(n, "guillaume@vasypaulette.com")
 	log.Println("Uploaded")
 
 	

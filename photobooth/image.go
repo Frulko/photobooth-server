@@ -21,7 +21,7 @@ type (
 	}
 )
 
-
+ 
 func (i *Image) Init() {
 	log.Println("init gabarit")
 	filebg, err := os.Open("/home/pi/go/src/go-usbmuxd/gabarit.jpg")
@@ -124,10 +124,14 @@ func (i *Image) GeneratePrintable() ([]byte){
 	// 	397, // x position
 	// 	359, // y position
 	// }
-	picture_position := [2]int{
-		499, // x position
-		325, // y position
-	}
+	// picture_position := [2]int{
+	// 	499, // x position
+	// 	325, // y position
+	// }
+		picture_position := [2]int{
+			379, // x position
+			205, // y position
+		}
 
 	// Schedule cleanup
 	defer imagick.Terminate()
